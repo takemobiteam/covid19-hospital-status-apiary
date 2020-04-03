@@ -7,7 +7,7 @@ Backend endpoints for supporting the Patient-Hospital coordination application.
 
 # Group Incoming Patients
 
-## Where should I go? [/patient-hospital-coordination/v1/incoming-patient]
+## Where should I go? [/patient-hospital-coordination/v2/incoming-patient]
 
 ### POST
 
@@ -84,18 +84,49 @@ Get a list of all available hospitals and their status.
 
         Internal Server Error.
 
-
-## Hospital Overview [/patient-hospital-coordination/v1/hospital-overview]
+## Aggregated Status [/patient-hospital-coordination/v2/aggregated-status{?level,lat1,lng1,lat2,lng2}]
 
 ### GET
 
-Get a list of overview data for all available hospitals.
+Get a list of aggregated status for hospitals within the specified bounding box.
+
++ Parameters
+    + level: state (string, required) - the level of granularity for the returned aggregated status. Valid levels are state, county, city and hospital.
+    + lat1: 42.0 (number, required) - the latitude of the bottom left corner of the bounding box.
+    + lng1: `-71.0` (number, required) - the longitude of the bottom left corner of the bounding box.
+    + lat2: 43.0 (number, required) - the latitude of the top right corner of the bounding box.
+    + lng2: `-70.0` (number, required) - the longitude of the top right corner of the bounding box.
 
 + Response 200 (application/json)
 
     + Attributes 
         + status: `success` (string, required) - status for the request.
-        + hospitals (array[HospitalOverview], optional) - list of overview for all known hospitals.
+        + hospitals (array[AggregatedHospitalStatus], optional) - list of agergated hospital status.
+    
++ Response 400
+
+        Bad Request.
+        
++ Response 401
+
+        Unauthorized.
+        
++ Response 500
+
+        Internal Server Error.
+
+
+## Hospital Overview [/patient-hospital-coordination/v1/hospital-overview]
+
+### GET
+    
+Get a list of all available hospitals and their status.
+
++ Response 200 (application/json)
+
+    + Attributes 
+        + status: `success` (string, required) - status for the request.
+        + hospitals (array[HospitalStatus], optional) - list of all known hospitals and their status.
     
 + Response 400
 
@@ -294,3 +325,25 @@ Confirm the email provided for the given report.
 ### TravelInformation
 + `travel_distance`: 25000 (number, required) - travel distance from the provided location (in meters).
 + `travel_time`: 1800 (number, required) - travel time from the provided location (in seconds).
+
+### AggregatedHospitalStatus
++ id: `a1111c8c-c720-46c3-8534-2fcdd730040d` (string, required) - unique identifier for the aggregate.
++ name: `MA` (string, required) - name of the aggregate.
++ level: `state` (string, required) - level of aggregation.
++ location (required) - the location of the hospital
+    + lat: `42.35031` (number, required) - the latitude of the aggregate.
+    + lng: `-71.0571` (number, required) - the longitude of the aggregate.
++ total_hospitals: `444` (number, required) - the total number of hospitals in the aggergate.
++ reporting_hospitals: `222` (number, required) - the total number of hospitals with reported data in the aggergate.
++ beds (AggregateCount, optional) - the longitude of the hospital.
++ `corona_beds` (AggregateCount, optional) - timezone of the hospital.
++ `icu_beds (AggregateCount, optional) - first line of the address for the hospital.
++ `ventilators` (AggregateCount, optional) - second line of the address for the hospital.
++ `ecmo` (AggregateCount, optional) - county of the address for the hospital.
++ `average_wait_time`: `1800` (string, optional) - average check-in wait time at the hospital, in seconds.
+
+### AggregateCount
++ no_data: `13` (number, required) - number of hospitals with no reported data in the aggregate.
++ at_capacity: `35` (number, required) - number of hospitals at capacity in the aggregate.
++ over_capacity: `32` (number, required) - number of hospitals over capacity in the aggregate.
++ under_capacity: `1` (number, required) - number of hospitals under capacity in the aggregate.
