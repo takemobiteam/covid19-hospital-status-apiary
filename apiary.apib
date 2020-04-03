@@ -5,6 +5,29 @@ HOST: https://staging.takemobi.com/
 
 Backend endpoints for supporting the Patient-Hospital coordination application.
 
+# Hospital overview [/patient-hospital-coordination/v2/hospital/?{q}]
+### GET
++ Parameters
+    + q: query (string, required) - the user's query string eg. mass%20general
+ 
+
++ Response 200 (application/json)
+    + Attributes 
+        + candidates: (array[Hospital], required)
+
++ Response 400
+        Bad Request.
+        
+# Hospital detail [/patient-hosptial-coordination/v2/hospital/{id}]
+### GET
++ Parameters
+    + id: hospital id (string, required) - the hospital id
+
++ Response 200 (application/json)
+    + Attributes
+       + hospital: (Hospital, required)
+       + status: (TBD, optional)
+
 # Group Incoming Patients
 
 ## Where should I go? [/patient-hospital-coordination/v2/incoming-patient]
