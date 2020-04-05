@@ -260,35 +260,35 @@ Confirm the email provided for the given report.
         + OFFICIAL
 + email: `123@abc.com` (string, optional) - email for the reporter.
 + `available_beds`: 15 (number, optional) - number of available beds at the hospital now.
-+ `available_beds_confidence` (enum, required) - enum for confidence on available bed input.
++ `available_beds_confidence` (enum, optional) - enum for confidence on available bed input.
     + Members
         + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `available_corona_beds`: 10 (number, optional) - number of available beds designated for corona patients
-+ `corona_beds_confidence` (enum, required) - enum for confidence on corona bed input.
++ `corona_beds_confidence` (enum, optional) - enum for confidence on corona bed input.
     + Members
         + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `available_icu_beds`: 10 (number, optional) - number of available beds designated for ICU patients
-+ `icu_beds_confidence` (enum, required) - enum for confidence on icu bed input.
++ `icu_beds_confidence` (enum, optional) - enum for confidence on icu bed input.
     + Members
         + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `available_ventilators`: 5 (number, optional) - number of available ventilators at the hospital now
-+ `available_ventilators_confidence` (enum, required) - enum for confidence on available ventilators input.
++ `available_ventilators_confidence` (enum, optional) - enum for confidence on available ventilators input.
     + Members
         + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `total_ventilators`: 15 (number, optional) - total number of ventilators at the hospital now.
-+ `total_ventilators_confidence` (enum, required) - enum for confidence on total ventilators input.
++ `total_ventilators_confidence` (enum, optional) - enum for confidence on total ventilators input.
     + Members
         + UNSPECIFIED
         + GUESS
@@ -296,14 +296,14 @@ Confirm the email provided for the given report.
         + CERTAIN
 + description: `it is very crowed` (string, optional) - a description for the hospital.
 + `current_number_corona_patients_without_ventilator`: 10 (number, optional) - number of corona patients at hospital not requiring a ventilator yet.
-+ `corona_patients_without_ventilator_confidence` (enum, required) - enum for confidence on number of corona patients at hospital not requiring a ventilator input.
++ `corona_patients_without_ventilator_confidence` (enum, optional) - enum for confidence on number of corona patients at hospital not requiring a ventilator input.
     + Members
         + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `current_wait_time`: 30 (number, optional) - current wait time for check-in at the hospital now (in seconds).
-+ `wait_time_confidence` (enum, required) - enum for confidence on wait time input.
++ `wait_time_confidence` (enum, optional) - enum for confidence on wait time input.
     + Members
         + UNSPECIFIED
         + GUESS
