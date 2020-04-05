@@ -36,12 +36,15 @@ Given the patient status, return a ranked list of health care facilities that wo
 
 # Group Hospital 
 
-## Hospital Status [/patient-hospital-coordination/v1/hospital-status]
+## Hospital Status Report [/patient-hospital-coordination/v2/report/{?hospital_id}/]
 
 ### POST
 
-From public health departments, patients, nurses, doctors, anyone at the hospitals to update the status of the healthcare facility.
+From public health departments, patients, nurses, doctors, anyone at the hospitals to report the status of the healthcare facility.
 
++ Parameters
+    + hospital_id: `123fwe908423` (string, required) - the unique identifier of the hospital.
+    
 + Request (application/json)
 
     + Attributes (HospitalUpdate, required)
@@ -61,16 +64,19 @@ From public health departments, patients, nurses, doctors, anyone at the hospita
 + Response 500
 
         Internal Server Error.
+        
+
+## Hospital Overview [/patient-hospital-coordination/v2/hospitals/]
 
 ### GET
 
-Get a list of all available hospitals and their status.
+Get a list of all known hospital.
 
 + Response 200 (application/json)
 
     + Attributes 
         + status: `success` (string, required) - status for the request.
-        + hospitals (array[HospitalStatus], optional) - list of all known hospitals and their status.
+        + candidates (array[HospitalOverview], optional) - list of all known hospitals.
     
 + Response 400
 
@@ -83,6 +89,63 @@ Get a list of all available hospitals and their status.
 + Response 500
 
         Internal Server Error.
+        
+
+## Hospital Search [/patient-hospital-coordination/v2/hospitals{?q}]
+
+### GET
+
+Get a list of all matched hospital.
+
++ Parameters
+    + q: `Massachusetts` (string, required) - the keyword for hospital search.
+    
++ Response 200 (application/json)
+
+    + Attributes 
+        + status: `success` (string, required) - status for the request.
+        + candidates (array[HospitalOverview], optional) - list of all known hospitals.
+    
++ Response 400
+
+        Bad Request.
+        
++ Response 401
+
+        Unauthorized.
+        
++ Response 500
+
+        Internal Server Error.
+        
+
+## Hospital Details [/patient-hospital-coordination/v2/hospitals/{hospital_id}/]
+
+### GET
+
+Get details of the hospital, identified by the hospital id.
+
++ Parameters
+    + hospital_id: `123fwe908423` (string, required) - the unique identifier of the hospital.
+
++ Response 200 (application/json)
+
+    + Attributes 
+        + hospital (HospitalOverview, optional) - overview of the hospital.
+        + status (HospitalStatusReport, optional) - status of the hospital.
+
++ Response 400
+
+        Bad Request.
+        
++ Response 401
+
+        Unauthorized.
+        
++ Response 500
+
+        Internal Server Error.
+        
 
 ## Aggregated Status [/patient-hospital-coordination/v2/aggregated-status{?level,lat1,lng1,lat2,lng2}]
 
@@ -114,60 +177,6 @@ Get a list of aggregated status for hospitals within the specified bounding box.
 + Response 500
 
         Internal Server Error.
-
-
-## Hospital Overview [/patient-hospital-coordination/v1/hospital-overview]
-
-### GET
-    
-Get a list of all available hospitals and their status.
-
-+ Response 200 (application/json)
-
-    + Attributes 
-        + status: `success` (string, required) - status for the request.
-        + hospitals (array[HospitalStatus], optional) - list of all known hospitals and their status.
-    
-+ Response 400
-
-        Bad Request.
-        
-+ Response 401
-
-        Unauthorized.
-        
-+ Response 500
-
-        Internal Server Error.
-
-
-## Hospital Details [/patient-hospital-coordination/v1/hospital-detail{?id}]
-
-### GET
-
-Get the detail of the given hospital specified by the id.
-
-+ Parameters
-    + id (string, required) - the unique identifier for the hospital.
-
-+ Response 200 (application/json)
-
-    + Attributes 
-        + status: `success` (string, required) - status for the request.
-        + hospital (HospitalStatus, optional) - list of all known hospitals and their status.
-    
-+ Response 400
-
-        Bad Request.
-        
-+ Response 401
-
-        Unauthorized.
-        
-+ Response 500
-
-        Internal Server Error.
-
 
 
 # Group Confirmation 
@@ -223,7 +232,7 @@ Confirm the email provided for the given report.
 
 ### PatientResponse
 + status: `success` (string, required) - unique status for the request.
-+ candidates (array[HospitalStatus], required) - ranked list of candidate hospitals for the patient.
++ candidates (array[HospitalOverview], required) - ranked list of candidate hospitals for the patient.
 
 ### Location
 + lat: `42.35031` (number, required) - the latitude of the hospital.
@@ -244,33 +253,44 @@ Confirm the email provided for the given report.
 + `filed_at`: 1585338528 (number, required) - the time in unix epoch time this report is filed.
 + `reporter_type` (enum, optional) - enum for the reporter's status.
     + Members
+        + UNSPECIFIED
         + PATIENT
         + MEDICAL_WORKER
         + STAFF
         + OFFICIAL
 + email: `123@abc.com` (string, optional) - email for the reporter.
 + `available_beds`: 15 (number, optional) - number of available beds at the hospital now.
++ `available_beds_confidence` (enum, required) - enum for confidence on available bed input.
+    + Members
+        + UNSPECIFIED
+        + GUESS
+        + EDUCATED_ESTIMATION
+        + CERTAIN
 + `available_corona_beds`: 10 (number, optional) - number of available beds designated for corona patients
 + `corona_beds_confidence` (enum, required) - enum for confidence on corona bed input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `available_icu_beds`: 10 (number, optional) - number of available beds designated for ICU patients
 + `icu_beds_confidence` (enum, required) - enum for confidence on icu bed input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `available_ventilators`: 5 (number, optional) - number of available ventilators at the hospital now
 + `available_ventilators_confidence` (enum, required) - enum for confidence on available ventilators input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
 + `total_ventilators`: 15 (number, optional) - total number of ventilators at the hospital now.
 + `total_ventilators_confidence` (enum, required) - enum for confidence on total ventilators input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
@@ -278,12 +298,14 @@ Confirm the email provided for the given report.
 + `current_number_corona_patients_without_ventilator`: 10 (number, optional) - number of corona patients at hospital not requiring a ventilator yet.
 + `corona_patients_without_ventilator_confidence` (enum, required) - enum for confidence on number of corona patients at hospital not requiring a ventilator input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
-+ `current_wait_time`: 1800 (number, optional) - current wait time for check-in at the hospital now (in seconds).
++ `current_wait_time`: 30 (number, optional) - current wait time for check-in at the hospital now (in seconds).
 + `wait_time_confidence` (enum, required) - enum for confidence on wait time input.
     + Members
+        + UNSPECIFIED
         + GUESS
         + EDUCATED_ESTIMATION
         + CERTAIN
@@ -293,38 +315,43 @@ Confirm the email provided for the given report.
 + status: `success` (string, required) - status for the request. Returns either `success` or some explanation why the update could not be incorporated, e.g. `no corresponding hospital found`.
 
 
-### HospitalStatus
-+ id: `a1111c8c-c720-46c3-8534-2fcdd730040d` (string, required) - unique identifier for the hospital.
-+ name: `Mass General` (string, required) - the name of the hospital.
-+ phone: `123-456-7890` (string, required) - the phone number of the hospital.
-+ type: `Short Term Acute Care Hospital` (string, required) - the type of the hospital.
-+ location (Location, required) - the location of the hospital
-+ photo: `https://lh5.googleusercontent.com/p/AF1QipMckTTCJlA7LhbwA8AgJmCCK-P4ta0SP5uqVnWJ=w408-h306-k-no` (string, optional) - a link to a representative image of the hospital.
-+ `specialty` (array[string], optional) - collection of specialty of the hospital.
-+ `available_beds`: 15 (number, optional) - number of available beds at the hospital now.
-+ `available_corona_beds`: 10 (number, optional) - number of available beds designated for corona patients
-+ `available_icu_beds`: 10 (number, optional) - number of available beds designated for ICU patients
-+ `available_ventilators`: 5 (number, optional) - number of available ventilators at the hospital now
-+ `total_beds`: 15 (number, optional) - number of available beds at the hospital now.
-+ `total_corona_beds`: 10 (number, optional) - number of available beds designated for corona patients
-+ `total_icu_beds`: 10 (number, optional) - number of available beds designated for ICU patients
-+ `total_ventilators`: 15 (number, optional) - total number of ventilators at the hospital now.
-+ `testing_available`: true (boolean, optional) - if COVID19 testing is available at the site.
-+ `notes` (array[string], optional) - a list of text description on the confidence of the metrics.
-+ `current_number_corona_patients_without_ventilator`: 10 (number, optional) - number of corona patients at hospital not requiring a ventilator yet.
-+ `current_wait_time`: 1800 (number, optional) - current wait time for check-in at the hospital now (in seconds).
-+ `travel_information` (TravelInformation, required) - travel information from the provided location to the hospital.
+### HospitalStatusReport
++ `source`: `3 reports` (string, optional) - description of the data source.
++ `beds` (Capacity, optional) - capacity of beds at the hospital now.
++ `icu_beds` (Capacity, optional) - capacity of ICU beds at the hospital now.
++ `corona_beds` (Capacity, optional) - capacity of corona beds at the hospital now.
++ `adult_ventilators` (Capacity, optional) - capacity of adult ventilators at the hospital now.
++ `ecmo` (Capacity, optional) - capacity of ecmo at the hospital now.
++ `current_wait_time_seconds` (Observation, optional) - current wait time for check-in at the hospital now (in seconds).
 
+### Capacity
++ available (Observation, required) - available capacity.
++ used (Observation, required) - used capacity.
++ total (Observation, required) - total capacity.
+
+### Observation
++ value: 10 (number, required) - value of the metric.
++ confidence (enum, required) - confidence of the metric.
+    + Members
+        + UNSPECIFIED
+        + GUESS
+        + EDUCATED_ESTIMATION
+        + CERTAIN
+        
 
 ### HospitalOverview
 + id: `a1111c8c-c720-46c3-8534-2fcdd730040d` (string, required) - unique identifier for the hospital.
-+ name: `Mass General` (string, required) - the name of the hospital.
 + location (Location, required) - the location of the hospital
++ name: `Mass General` (string, required) - the name of the hospital.
++ type: `Short Term Acute Care Hospital` (string, required) - the type of the hospital.
++ photo: `https://lh5.googleusercontent.com/p/AF1QipMckTTCJlA7LhbwA8AgJmCCK-P4ta0SP5uqVnWJ=w408-h306-k-no` (string, optional) - a link to a representative image of the hospital.
++ `travel_information` (TravelInformation, required) - travel information from the provided location to the hospital.
 
 
 ### TravelInformation
 + `travel_distance`: 25000 (number, required) - travel distance from the provided location (in meters).
 + `travel_time`: 1800 (number, required) - travel time from the provided location (in seconds).
+
 
 ### AggregatedHospitalStatus
 + id: `a1111c8c-c720-46c3-8534-2fcdd730040d` (string, required) - unique identifier for the aggregate.
